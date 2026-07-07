@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Application — NovaCart</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom Style System -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Auth Container -->
+    <div class="auth-container">
+        <div class="auth-card glass-panel fade-in">
+            <div class="text-center mb-4">
+                <a href="index.html" class="navbar-brand-elite justify-content-center text-white mb-2">
+                    <i class="bi bi-hexagon-fill"></i> NovaCart
+                </a>
+                <h2 class="h4">Privilege Account</h2>
+                <p class="text-secondary small">Apply for standard membership access</p>
+            </div>
+            
+            <!-- Error Alert -->
+            <div class="alert alert-danger d-none py-2" id="reg-error-alert" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 14px;">
+                Registration failed. Account might already exist.
+            </div>
+            
+            <!-- Success Alert -->
+            <div class="alert alert-success d-none py-2" id="reg-success-alert" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 14px;">
+                Membership approved! Redirecting to credentials portal...
+            </div>
+
+            <!-- Register Form -->
+            <form id="register-form">
+                <div class="mb-3">
+                    <label for="username" class="form-label-glass">Profile Name</label>
+                    <input type="text" class="form-control form-control-glass" id="username" required placeholder="John Doe">
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label-glass">Email Address</label>
+                    <input type="email" class="form-control form-control-glass" id="email" required placeholder="john@example.com">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="role" class="form-label-glass">Account Privilege Role</label>
+                    <select class="form-select form-control-glass" id="role" required>
+                        <option value="CUSTOMER" selected>Customer (Standard Member)</option>
+                        <option value="ADMIN">Admin (Catalog Administrator)</option>
+                    </select>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label for="password" class="form-label-glass">Password</label>
+                        <input type="password" class="form-control form-control-glass" id="password" required placeholder="••••••••" minlength="4">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="confirm-password" class="form-label-glass">Confirm Key</label>
+                        <input type="password" class="form-control form-control-glass" id="confirm-password" required placeholder="••••••••">
+                    </div>
+                </div>
+                
+                <button type="submit" class="glow-btn w-100 py-3 mb-3" id="reg-submit-btn">Register Membership</button>
+            </form>
+            
+            <div class="text-center mt-3">
+                <p class="text-secondary small mb-0">Already a Member? <a href="login.html" class="text-gradient-purple fw-semibold">Authorize Entry</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dynamic Background -->
+    <script src="js/bg-morphism.js"></script>
+    
+    <!-- Custom JS Core Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const role = document.getElementById('role').value;
+            
+            const submitBtn = document.getElementById('reg-submit-btn');
+            const errorAlert = document.getElementById('reg-error-alert');
+            const successAlert = document.getElementById('reg-success-alert');
+            
+            errorAlert.classList.add('d-none');
+            successAlert.classList.add('d-none');
+            
+            if (password !== confirmPassword) {
+                errorAlert.innerText = 'Passwords do not match.';
+                errorAlert.classList.remove('d-none');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Validating Membership...';
+            
+            try {
+                const body = {
+                    username: username,
+                    email: email,
+                    password: password,
+                    role: role
+                };
+                
+                const response = await apiRequest('/auth/register', 'POST', body);
+                
+                successAlert.classList.remove('d-none');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                
+            } catch (error) {
+                errorAlert.innerText = 'Membership application rejected. Email may already be registered.';
+                errorAlert.classList.remove('d-none');
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Register Membership';
+            }
+        });
+    </script>
+</body>
+</html>

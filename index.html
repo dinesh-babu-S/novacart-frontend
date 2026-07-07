@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NovaCart - Experience premium, elite e-commerce shopping. Handpicked categories and limited edition products.">
+    <title>NovaCart — Discover Premium, Shop Elite</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom Style System -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+    <!-- Header / Navbar Container -->
+    <div id="header-navbar"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center min-vh-75 py-5">
+                <div class="col-lg-6 hero-content fade-in">
+                    <span class="hero-subtitle">NovaCart Premium</span>
+                    <h1 class="hero-title text-white">Experience <span class="text-gradient-purple">Elite</span> Shopping</h1>
+                    <p class="hero-description">Discover a curated collection of ultra-premium goods. Engineered for quality, designed for style, and selected for the discerning enthusiast.</p>
+                    
+                    <!-- Search Bar -->
+                    <div class="mb-4" style="max-width: 480px;">
+                        <form id="home-search-form" class="d-flex gap-2">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: rgba(255, 255, 255, 0.08);"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control form-control-glass border-start-0" id="home-search-input" placeholder="Search product name..." required>
+                            </div>
+                            <button type="submit" class="glow-btn px-4"><i class="bi bi-arrow-right"></i></button>
+                        </form>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <a href="products.html" class="glow-btn">Shop Collection <i class="bi bi-arrow-right-short ms-1"></i></a>
+                        <a href="#categories-section" class="glow-btn-outline">Browse Categories</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center mt-5 mt-lg-0 fade-in" style="animation-delay: 0.2s;">
+                    <div class="position-relative d-inline-block">
+                        <div class="position-absolute top-50 start-50 translate-middle" style="width: 300px; height: 300px; background: radial-gradient(circle, var(--accent-purple-glow) 0%, transparent 60%); z-index: -1;"></div>
+                        <i class="bi bi-hexagon-fill text-gradient-purple" style="font-size: 260px; filter: drop-shadow(0 0 50px rgba(212, 175, 55, 0.3));"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories-section" class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <span class="text-gradient-purple text-uppercase fw-bold small tracking-widest d-block mb-2">Curated Spaces</span>
+                    <h2 class="h1 m-0">Featured Categories</h2>
+                </div>
+            </div>
+            
+            <!-- Category Horizontal Scroller -->
+            <div class="category-scroller" id="home-categories-list">
+                <!-- Loaded dynamically -->
+                <div class="category-pill-card skeleton"></div>
+                <div class="category-pill-card skeleton"></div>
+                <div class="category-pill-card skeleton"></div>
+                <div class="category-pill-card skeleton"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Products Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <span class="text-gradient-gold text-uppercase fw-bold small tracking-widest d-block mb-2">Selected Releases</span>
+                    <h2 class="h1 m-0">Trending Products</h2>
+                </div>
+                <a href="products.html" class="nav-link-elite">View All Collection <i class="bi bi-arrow-right-short ms-1"></i></a>
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="row g-4" id="home-products-grid">
+                <!-- Skeletons loaded dynamically -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="skeleton-card skeleton"></div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="skeleton-card skeleton"></div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="skeleton-card skeleton"></div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="skeleton-card skeleton"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mid Promotional Banner -->
+    <section class="py-5">
+        <div class="container">
+            <div class="mid-banner">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <span class="text-gradient-gold text-uppercase fw-bold small d-block mb-2">Exclusive Offer</span>
+                        <h3 class="h2 text-white mb-3">Join the NovaCart Privilege Program</h3>
+                        <p class="text-secondary mb-4 mb-md-0 max-w-lg">Unlock next-day shipping, personalized customer support, early access to new collections, and special reward credits on checkout.</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <a href="register.html" class="glow-btn">Create Premium Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-5 mt-5" style="border-top: 1px solid rgba(255, 255, 255, 0.05); background: rgba(13, 13, 24, 0.4);">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="navbar-brand-elite mb-3 text-white">
+                        <i class="bi bi-hexagon-fill"></i> NovaCart
+                    </h5>
+                    <p class="text-muted small">Elevating standard online commerce into a tailored luxury shopping journey. Crafted with precision for the modern lifestyle.</p>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h6 class="text-white mb-3 text-uppercase small font-heading">Explore</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="products.html" class="text-secondary small d-block mb-2 hover-text-white">All Collection</a></li>
+                        <li><a href="#categories-section" class="text-secondary small d-block mb-2 hover-text-white">Categories</a></li>
+                        <li><a href="orders.html" class="text-secondary small d-block mb-2 hover-text-white">Track Order</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h6 class="text-white mb-3 text-uppercase small font-heading">Legals</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-secondary small d-block mb-2 hover-text-white">Terms of Service</a></li>
+                        <li><a href="#" class="text-secondary small d-block mb-2 hover-text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="text-secondary small d-block mb-2 hover-text-white">Contact Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="text-white mb-3 text-uppercase small font-heading">Privileged News</h6>
+                    <p class="text-muted small mb-3">Subscribe to receive private sale updates and limited product drop notices.</p>
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-glass border-end-0" placeholder="Enter email address" aria-label="Subscriber email">
+                        <button class="glow-btn border-start-0" type="button"><i class="bi bi-send"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-top border-secondary mt-5 pt-4 text-center">
+                <p class="text-muted small mb-0">&copy; 2026 NovaCart Inc. Crafted with Premium Aesthetics. All privileges reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dynamic Background -->
+    <script src="js/bg-morphism.js"></script>
+    
+    <!-- Custom JS Core Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <!-- Custom Page Script -->
+    <script src="js/home.js"></script>
+</body>
+</html>

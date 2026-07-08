@@ -77,6 +77,31 @@ async function loadOrders() {
             // Build items rows
             let itemsRowsHtml = '';
             order.items.forEach(item => {
+                let statusText = '';
+                let statusColor = '#94a3b8';
+                let actionBtn = '';
+
+                if (item.status === 'PENDING') {
+                    statusText = 'Awaiting Confirmation';
+                    statusColor = '#f59e0b';
+                } else if (item.status === 'CONFIRMED' || item.status === 'SHIPPED') {
+                    statusText = 'Delivery Incoming';
+                    statusColor = '#60a5fa';
+                } else if (item.status === 'DELIVERED') {
+                    statusText = 'Delivered';
+                    statusColor = '#4ade80';
+                    actionBtn = `<button class="btn btn-sm btn-outline-warning py-0 px-2 ms-2" style="font-size:11px; border-radius: 6px;" onclick="returnProduct(event, ${item.id})">Return</button>`;
+                } else if (item.status === 'CANCELLED') {
+                    statusText = 'Cancelled';
+                    statusColor = '#f87171';
+                } else if (item.status === 'RETURN_REQUESTED') {
+                    statusText = 'Return Requested';
+                    statusColor = '#f472b6';
+                } else if (item.status === 'RETURNED') {
+                    statusText = 'Returned';
+                    statusColor = '#cbd5e1';
+                }
+
                 itemsRowsHtml += `
                     <tr>
                         <td class="text-white ps-0">
@@ -88,8 +113,12 @@ async function loadOrders() {
                         <td class="text-center">
                             <span class="badge bg-dark border border-secondary" style="font-size: 12px;">${item.quantity}</span>
                         </td>
-                        <td class="text-end pe-0">
+                        <td class="text-center">
                             <span class="fw-semibold text-gradient-gold" style="font-size: 13px;">Rs. ${item.subtotal.toFixed(2)}</span>
+                        </td>
+                        <td class="text-end pe-0">
+                            <span style="color: ${statusColor}; font-size: 12px;">${statusText}</span>
+                            ${actionBtn}
                         </td>
                     </tr>
                 `;
@@ -154,7 +183,8 @@ async function loadOrders() {
                                         <th class="ps-3">Product</th>
                                         <th class="text-center">Unit Price</th>
                                         <th class="text-center">Qty</th>
-                                        <th class="text-end pe-3">Subtotal</th>
+                                        <th class="text-center">Subtotal</th>
+                                        <th class="text-end pe-3">Status / Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -162,7 +192,7 @@ async function loadOrders() {
                                 </tbody>
                                 <tfoot>
                                     <tr class="order-subtotal-row">
-                                        <td colspan="3" class="text-end ps-3">
+                                        <td colspan="4" class="text-end ps-3">
                                             <span class="text-secondary fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;">Grand Total</span>
                                         </td>
                                         <td class="text-end pe-3">
@@ -249,3 +279,19 @@ async function cancelOrder(event, orderId) {
 // Bind to window scope for inline HTML handlers
 window.cancelOrder = cancelOrder;
 window.toggleOrderDetails = toggleOrderDetails;
+window.returnProduct = returnProduct;
+
+async function returnProduct(event, itemId) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (!confirm('Are you sure you want to request a return for this product?')) return;
+
+    try {
+        await apiRequest(`/api/orders/items/${itemId}/return`, 'PUT');
+        showToast('Return requested successfully!', 'success');
+        setTimeout(() => loadOrders(), 500);
+    } catch (e) {
+        showToast(e.message || 'Failed to request return.', 'error');
+    }
+}

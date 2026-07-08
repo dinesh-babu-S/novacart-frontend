@@ -227,10 +227,20 @@ function renderProductsGrid(products) {
     let html = '';
     products.forEach(prod => {
         const imgUrl = getProductImageUrl(prod.imageUrl);
+        const isOutOfStock = prod.stock <= 0;
+        
+        const stockStatusHtml = isOutOfStock
+            ? `<span class="badge bg-danger-subtle text-danger border border-danger small py-1 px-2" style="font-size:10px;">Out of Stock</span>`
+            : `<span class="text-secondary small" style="font-size:11px;">Stock: ${prod.stock} units</span>`;
+
+        const actionButtonHtml = isOutOfStock
+            ? `<button class="btn btn-sm btn-outline-secondary px-2 py-1" disabled title="Out of stock"><i class="bi bi-cart-x"></i></button>`
+            : `<button class="glow-btn btn-sm px-2 py-1" onclick="quickCatalogAddToCart(event, ${prod.id})" title="Add to Cart"><i class="bi bi-cart-plus"></i></button>`;
         
         html += `
             <div class="col-6 col-md-4">
-                <div class="card-elite glass-panel h-100">
+                <div class="card-elite glass-panel h-100 position-relative">
+                    ${isOutOfStock ? `<span class="badge bg-danger position-absolute" style="top:12px; left:12px; z-index:5; font-size:11px; padding: 4px 8px;">Sold Out</span>` : ''}
                     <div class="card-img-wrap" onclick="window.location.href='product-detail.html?id=${prod.id}'" style="cursor: pointer;">
                         <img src="${imgUrl}" alt="${prod.name}">
                         <div class="card-img-overlay-details">
@@ -238,13 +248,14 @@ function renderProductsGrid(products) {
                         </div>
                     </div>
                     <div class="card-body-elite">
-                        <div class="card-category">${prod.categoryName || 'General'}</div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="card-category m-0">${prod.categoryName || 'General'}</span>
+                            ${stockStatusHtml}
+                        </div>
                         <h3 class="card-title-elite" title="${prod.name}" onclick="window.location.href='product-detail.html?id=${prod.id}'" style="cursor: pointer;">${prod.name}</h3>
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <span class="card-price-elite">Rs. ${prod.price.toFixed(2)}</span>
-                            <button class="glow-btn btn-sm px-2 py-1" onclick="quickCatalogAddToCart(event, ${prod.id})">
-                                <i class="bi bi-cart-plus"></i>
-                            </button>
+                            ${actionButtonHtml}
                         </div>
                     </div>
                 </div>

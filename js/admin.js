@@ -57,9 +57,17 @@ async function loadCategoriesTable() {
             `;
             return;
         }
-
+        const currentUser = getLoggedInUser();
+        const currentUserId = currentUser ? currentUser.id : null;
         let html = '';
         cachedCategoriesList.forEach(cat => {
+                  const isOwner = !cat.createdByAdminId || cat.createdByAdminId === currentUserId;
+            const actionButtons = isOwner ? `
+                <button class="btn btn-sm btn-outline-info me-2" onclick="editCategory(${cat.id})"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${cat.id})"><i class="bi bi-trash"></i></button>
+            ` : `
+                <span class="badge bg-dark border border-secondary text-muted">Shared</span>
+            `;
             html += `
                 <tr>
                     <td>#CAT-${cat.id}</td>
@@ -67,8 +75,7 @@ async function loadCategoriesTable() {
                     <td><span class="badge bg-secondary">${cat.slug}</span></td>
                     <td class="text-muted small text-truncate" style="max-width: 250px;">${cat.description || 'N/A'}</td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-info me-2" onclick="editCategory(${cat.id})"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${cat.id})"><i class="bi bi-trash"></i></button>
+                        ${actionButtons}
                     </td>
                 </tr>
             `;
@@ -88,9 +95,9 @@ async function loadProductsTable() {
     if (!tableBody) return;
 
     try {
-        const products = await apiRequest('/api/products', 'GET');
+         const products = await apiRequest('/api/products/mine', 'GET');
         const count = products ? products.length : 0;
-
+        
         if (metricText) metricText.innerText = count;
 
         if (count === 0) {

@@ -52,31 +52,48 @@ async function loadCategoriesTable() {
         if (cachedCategoriesList.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="text-center text-muted py-4">No categories configured yet.</td>
+                    <td colspan="6" class="text-center text-muted py-4">No categories configured yet.</td>
                 </tr>
             `;
             return;
         }
 
         const currentUser = getLoggedInUser();
-        const currentUserId = currentUser ? currentUser.id : null;
+        const currentUserId = currentUser ? Number(currentUser.id) : null;
 
         let html = '';
         cachedCategoriesList.forEach(cat => {
-            const isOwner = !cat.createdByAdminId || cat.createdByAdminId === currentUserId;
+            const isOwner = cat.createdByAdminId != null && Number(cat.createdByAdminId) === currentUserId;
+
+            // Action buttons: only enabled for owner
             const actionButtons = isOwner ? `
-                <button class="btn btn-sm btn-outline-info me-2" onclick="editCategory(${cat.id})"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${cat.id})"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-info me-2" onclick="editCategory(${cat.id})" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${cat.id})" title="Delete">
+                    <i class="bi bi-trash"></i>
+                </button>
             ` : `
-                <span class="badge bg-dark border border-secondary text-muted">Shared</span>
+                <button class="btn btn-sm btn-outline-secondary me-2" disabled title="You can only edit your own categories">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" disabled title="You can only delete your own categories">
+                    <i class="bi bi-trash"></i>
+                </button>
             `;
+
+            // Owner badge
+            const ownerBadge = isOwner
+                ? `<span class="badge bg-success-subtle text-success border border-success" style="font-size:11px;"><i class="bi bi-person-check me-1"></i>You</span>`
+                : `<span class="badge bg-dark border border-secondary text-muted" style="font-size:11px;"><i class="bi bi-person me-1"></i>Admin #${cat.createdByAdminId ?? '?'}</span>`;
 
             html += `
                 <tr>
                     <td>#CAT-${cat.id}</td>
                     <td class="fw-semibold text-white">${cat.name}</td>
                     <td><span class="badge bg-secondary">${cat.slug}</span></td>
-                    <td class="text-muted small text-truncate" style="max-width: 250px;">${cat.description || 'N/A'}</td>
+                    <td class="text-muted small text-truncate" style="max-width: 200px;">${cat.description || 'N/A'}</td>
+                    <td>${ownerBadge}</td>
                     <td class="text-end">
                         ${actionButtons}
                     </td>
@@ -86,7 +103,7 @@ async function loadCategoriesTable() {
         tableBody.innerHTML = html;
 
     } catch (e) {
-        tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4">Error loading categories matrix.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error loading categories matrix.</td></tr>';
     }
 }
 
@@ -98,23 +115,51 @@ async function loadProductsTable() {
     if (!tableBody) return;
 
     try {
-        const products = await apiRequest('/api/products/mine', 'GET');
+        // Fetch ALL products — not just own — so admins can see everything
+        const products = await apiRequest('/api/products', 'GET');
         const count = products ? products.length : 0;
 
+        // Metric shows total visible products
         if (metricText) metricText.innerText = count;
 
         if (count === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">No products in vault. Register products to list them.</td>
+                    <td colspan="8" class="text-center text-muted py-4">No products in vault. Register products to list them.</td>
                 </tr>
             `;
             return;
         }
 
+        const currentUser = getLoggedInUser();
+        const currentUserId = currentUser ? Number(currentUser.id) : null;
+
         let html = '';
         products.forEach(prod => {
             const imgUrl = getProductImageUrl(prod.imageUrl);
+            const isOwner = prod.createdByAdminId != null && Number(prod.createdByAdminId) === currentUserId;
+
+            // Action buttons: edit & delete only for owner; disabled (greyed out) for others
+            const actionButtons = isOwner ? `
+                <button class="btn btn-sm btn-outline-info me-2" onclick="editProduct(${prod.id})" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${prod.id})" title="Delete">
+                    <i class="bi bi-trash"></i>
+                </button>
+            ` : `
+                <button class="btn btn-sm btn-outline-secondary me-2" disabled title="You can only edit your own products">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" disabled title="You can only delete your own products">
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+
+            // Creator badge
+            const creatorBadge = isOwner
+                ? `<span class="badge bg-success-subtle text-success border border-success" style="font-size:11px;"><i class="bi bi-person-check me-1"></i>You</span>`
+                : `<span class="badge bg-dark border border-secondary text-muted" style="font-size:11px;"><i class="bi bi-person me-1"></i>${prod.createdByAdminName || 'Admin #' + prod.createdByAdminId}</span>`;
 
             html += `
                 <tr>
@@ -128,9 +173,9 @@ async function loadProductsTable() {
                             ${prod.stock} units
                         </span>
                     </td>
+                    <td>${creatorBadge}</td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-info me-2" onclick="editProduct(${prod.id})"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${prod.id})"><i class="bi bi-trash"></i></button>
+                        ${actionButtons}
                     </td>
                 </tr>
             `;
@@ -138,7 +183,7 @@ async function loadProductsTable() {
         tableBody.innerHTML = html;
 
     } catch (e) {
-        tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">Error loading product matrix.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Error loading product matrix.</td></tr>';
     }
 }
 

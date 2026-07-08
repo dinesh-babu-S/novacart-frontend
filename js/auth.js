@@ -36,6 +36,7 @@ function getLoggedInUser() {
     const tokenPayload = getDecodedToken();
     if (!tokenPayload) return null;
     return {
+         id: tokenPayload.id,
         username: tokenPayload.username || 'User',
         email: tokenPayload.sub,
         role: tokenPayload.role // 'ADMIN' or 'CUSTOMER'

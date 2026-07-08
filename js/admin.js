@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 async function refreshDashboard() {
     await Promise.all([
         loadCategoriesTable(),
-        loadProductsTable()
+        loadProductsTable(),
+        loadOrderRequestsTable()
     ]);
 }
 
@@ -435,3 +436,90 @@ window.deleteCategory = deleteCategory;
 window.deleteProduct = deleteProduct;
 window.openProductModal = openProductModal;
 window.openCategoryModal = openCategoryModal;
+window.processOrderRequest = processOrderRequest;
+
+async function loadOrderRequestsTable() {
+    const tableBody = document.getElementById('admin-orders-table-body');
+    if (!tableBody) return;
+
+    try {
+        const orderItems = await apiRequest('/api/orders/admin/items', 'GET');
+        
+        if (!orderItems || orderItems.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No order requests received yet.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        let html = '';
+        orderItems.forEach(item => {
+            let statusBadge = '';
+            let actionButtons = '';
+
+            const statusColors = {
+                'PENDING': { bg: 'rgba(245, 158, 11, 0.15)', text: '#f59e0b', label: 'Pending Approval' },
+                'CONFIRMED': { bg: 'rgba(59, 130, 246, 0.15)', text: '#60a5fa', label: 'Delivery Incoming' },
+                'SHIPPED': { bg: 'rgba(139, 92, 246, 0.15)', text: '#a78bfa', label: 'Shipped' },
+                'DELIVERED': { bg: 'rgba(34, 197, 94, 0.15)', text: '#4ade80', label: 'Delivered' },
+                'CANCELLED': { bg: 'rgba(239, 68, 68, 0.15)', text: '#f87171', label: 'Cancelled' },
+                'RETURN_REQUESTED': { bg: 'rgba(236, 72, 153, 0.15)', text: '#f472b6', label: 'Return Requested' },
+                'RETURNED': { bg: 'rgba(100, 116, 139, 0.18)', text: '#cbd5e1', label: 'Returned' }
+            };
+
+            const cfg = statusColors[item.status] || { bg: 'rgba(100,116,139,0.18)', text: '#cbd5e1', label: item.status };
+            statusBadge = `<span class="badge py-1 px-2" style="background:${cfg.bg};color:${cfg.text};border:1px solid rgba(255,255,255,0.05);font-size:11px;">${cfg.label}</span>`;
+
+            if (item.status === 'PENDING') {
+                actionButtons = `
+                    <button class="btn btn-sm btn-outline-success me-2" onclick="processOrderRequest(${item.id}, 'accept')"><i class="bi bi-check-lg"></i> Accept</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="processOrderRequest(${item.id}, 'reject')"><i class="bi bi-x-lg"></i> Reject</button>
+                `;
+            } else if (item.status === 'CONFIRMED' || item.status === 'SHIPPED') {
+                actionButtons = `
+                    <button class="btn btn-sm btn-outline-primary me-2" onclick="processOrderRequest(${item.id}, 'deliver')"><i class="bi bi-truck"></i> Deliver</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="processOrderRequest(${item.id}, 'reject')"><i class="bi bi-trash"></i> Cancel</button>
+                `;
+            } else if (item.status === 'RETURN_REQUESTED') {
+                actionButtons = `
+                    <button class="btn btn-sm btn-outline-warning me-2" onclick="processOrderRequest(${item.id}, 'accept-return')"><i class="bi bi-arrow-counterclockwise"></i> Approve Return</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="processOrderRequest(${item.id}, 'reject')"><i class="bi bi-x-circle"></i> Reject Return</button>
+                `;
+            } else {
+                actionButtons = `<span class="text-muted small">No actions</span>`;
+            }
+
+            html += `
+                <tr>
+                    <td>#ITEM-${item.id}</td>
+                    <td class="fw-semibold text-white">${item.productName}</td>
+                    <td><span class="badge bg-dark border border-secondary">${item.quantity}</span></td>
+                    <td class="text-gradient-gold fw-semibold">Rs. ${item.subtotal.toFixed(2)}</td>
+                    <td>${statusBadge}</td>
+                    <td class="text-end">${actionButtons}</td>
+                </tr>
+            `;
+        });
+        tableBody.innerHTML = html;
+
+    } catch (e) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error loading order requests matrix.</td></tr>';
+    }
+}
+
+async function processOrderRequest(itemId, action) {
+    let confirmMsg = `Are you sure you want to ${action} this order item?`;
+    if (action === 'accept') confirmMsg = "Accept this order request? This will deduct the stock of your product.";
+    if (action === 'accept-return') confirmMsg = "Approve return request? This will restore stock of your product.";
+
+    try {
+        if (!confirm(confirmMsg)) return;
+        await apiRequest(`/api/orders/items/${itemId}/${action}`, 'PUT');
+        showToast(`Order item ${action}ed successfully!`, 'success');
+        refreshDashboard();
+    } catch (error) {
+        showToast(error.message || 'Operation failed.', 'error');
+    }
+}

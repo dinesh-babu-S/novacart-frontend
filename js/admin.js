@@ -66,26 +66,15 @@ async function loadCategoriesTable() {
             const isOwner = cat.createdByAdminId != null && Number(cat.createdByAdminId) === currentUserId;
 
             // Action buttons: only enabled for owner
-            const actionButtons = isOwner ? `
-                <button class="btn btn-sm btn-outline-info me-2" onclick="editCategory(${cat.id})" title="Edit">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${cat.id})" title="Delete">
-                    <i class="bi bi-trash"></i>
-                </button>
-            ` : `
-                <button class="btn btn-sm btn-outline-secondary me-2" disabled title="You can only edit your own categories">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-secondary" disabled title="You can only delete your own categories">
-                    <i class="bi bi-trash"></i>
-                </button>
-            `;
+            const actionButtons = isOwner
+                ? `<button class="btn btn-sm btn-outline-info me-2" onclick="editCategory(${cat.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+                   <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${cat.id})" title="Delete"><i class="bi bi-trash"></i></button>`
+                : `<span class="text-secondary" title="Belongs to another admin" style="font-size:18px; opacity:0.45;"><i class="bi bi-lock"></i></span>`;
 
-            // Owner badge
+            // Owner badge — plain text, no icon glyphs to avoid rendering issues
             const ownerBadge = isOwner
-                ? `<span class="badge bg-success-subtle text-success border border-success" style="font-size:11px;"><i class="bi bi-person-check me-1"></i>You</span>`
-                : `<span class="badge bg-dark border border-secondary text-muted" style="font-size:11px;"><i class="bi bi-person me-1"></i>Admin #${cat.createdByAdminId ?? '?'}</span>`;
+                ? `<span class="badge py-1 px-2" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.35);font-size:11px;">You</span>`
+                : `<span class="badge py-1 px-2" style="background:rgba(100,116,139,0.18);color:#cbd5e1;border:1px solid rgba(100,116,139,0.35);font-size:11px;">Admin #${cat.createdByAdminId ?? '?'}</span>`;
 
             html += `
                 <tr>
@@ -94,9 +83,7 @@ async function loadCategoriesTable() {
                     <td><span class="badge bg-secondary">${cat.slug}</span></td>
                     <td class="text-muted small text-truncate" style="max-width: 200px;">${cat.description || 'N/A'}</td>
                     <td>${ownerBadge}</td>
-                    <td class="text-end">
-                        ${actionButtons}
-                    </td>
+                    <td class="text-end">${actionButtons}</td>
                 </tr>
             `;
         });
@@ -139,27 +126,16 @@ async function loadProductsTable() {
             const imgUrl = getProductImageUrl(prod.imageUrl);
             const isOwner = prod.createdByAdminId != null && Number(prod.createdByAdminId) === currentUserId;
 
-            // Action buttons: edit & delete only for owner; disabled (greyed out) for others
-            const actionButtons = isOwner ? `
-                <button class="btn btn-sm btn-outline-info me-2" onclick="editProduct(${prod.id})" title="Edit">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${prod.id})" title="Delete">
-                    <i class="bi bi-trash"></i>
-                </button>
-            ` : `
-                <button class="btn btn-sm btn-outline-secondary me-2" disabled title="You can only edit your own products">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-secondary" disabled title="You can only delete your own products">
-                    <i class="bi bi-trash"></i>
-                </button>
-            `;
+            // Action buttons: edit & delete only for owner; lock icon for others
+            const actionButtons = isOwner
+                ? `<button class="btn btn-sm btn-outline-info me-2" onclick="editProduct(${prod.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+                   <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${prod.id})" title="Delete"><i class="bi bi-trash"></i></button>`
+                : `<span class="text-secondary" title="Belongs to another admin" style="font-size:18px; opacity:0.45;"><i class="bi bi-lock"></i></span>`;
 
-            // Creator badge
+            // Creator badge — plain text, no icon glyphs to avoid template literal rendering issues
             const creatorBadge = isOwner
-                ? `<span class="badge bg-success-subtle text-success border border-success" style="font-size:11px;"><i class="bi bi-person-check me-1"></i>You</span>`
-                : `<span class="badge bg-dark border border-secondary text-muted" style="font-size:11px;"><i class="bi bi-person me-1"></i>${prod.createdByAdminName || 'Admin #' + prod.createdByAdminId}</span>`;
+                ? `<span class="badge py-1 px-2" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.35);font-size:11px;">You</span>`
+                : `<span class="badge py-1 px-2" style="background:rgba(100,116,139,0.18);color:#cbd5e1;border:1px solid rgba(100,116,139,0.35);font-size:11px;">${prod.createdByAdminName || ('Admin #' + prod.createdByAdminId)}</span>`;
 
             html += `
                 <tr>
